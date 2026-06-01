@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FrescaMart × SmartCart Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,600&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--green:#1a7a4a;--green-dark:#145e38;--green-light:#e8f5ee;--orange:#f07d00;--orange-light:#fff4e6;--red:#e8323c;--yellow:#f5c800;--text:#1c1c1c;--text-mid:#555;--text-light:#888;--border:#e5e5e5;--bg:#f7f7f7;--white:#fff;--radius:12px;--radius-sm:8px;--shadow:0 2px 12px rgba(0,0,0,.08);--shadow-hover:0 6px 24px rgba(0,0,0,.14);
+--sc:#6baed6;--sc-dark:#2c4a6e;--sc-light:#e8f4fd;--sc-mid:#b8d9f0;--sc-glow:rgba(107,174,214,.2);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
+
+/* ── SC OVERLAY SYSTEM ── */
+.sc-zone{position:relative;border:2.5px solid var(--sc);border-radius:16px;box-shadow:0 0 0 4px var(--sc-glow),0 4px 24px rgba(107,174,214,.18);}
+.sc-badge{position:absolute;top:-13px;left:16px;background:var(--sc-dark);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:4px 12px;border-radius:50px;display:flex;align-items:center;gap:5px;z-index:10;white-space:nowrap;box-shadow:0 2px 8px rgba(44,74,110,.4);}
+.sc-tag{background:var(--sc-dark);color:#fff;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:4px;width:fit-content;}
+.sc-tag.orange{background:#e07b00;} .sc-tag.red{background:#c0392b;}
+.sc-tooltip{position:absolute;bottom:-2px;right:-2px;background:var(--sc-dark);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:500;padding:5px 10px;border-radius:12px 0 12px 0;opacity:.9;max-width:200px;line-height:1.4;z-index:10;}
+.sc-cucarda{position:absolute;top:10px;left:10px;z-index:5;display:flex;flex-direction:column;gap:3px;}
+.sc-countdown{position:absolute;top:10px;left:10px;background:#c0392b;color:#fff;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;padding:4px 8px;border-radius:4px;z-index:5;display:flex;align-items:center;gap:4px;}
+.sc-countdown .cd-time{background:rgba(255,255,255,.2);padding:1px 5px;border-radius:3px;font-size:10px;font-weight:900;}
+.sc-stock-alert{position:absolute;bottom:8px;left:8px;background:#e07b00;color:#fff;font-family:'Inter',sans-serif;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;z-index:5;text-transform:uppercase;}
+.sc-user-hi{background:var(--sc-light);border-left:4px solid var(--sc);border-radius:0 var(--radius) var(--radius) 0;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--sc-dark);}
+.sc-dynamic-banner{border-radius:var(--radius);padding:28px 36px;display:flex;align-items:center;gap:24px;margin-bottom:0;position:relative;overflow:hidden;min-height:120px;}
+.sc-dynamic-banner .dyn-icon{font-size:60px;flex-shrink:0;}
+.sc-dynamic-banner .dyn-text h3{font-size:22px;font-weight:900;line-height:1.2;margin-bottom:4px;}
+.sc-dynamic-banner .dyn-text p{font-size:14px;opacity:.85;}
+.sc-dynamic-banner .dyn-btn{margin-left:auto;white-space:nowrap;background:#fff;border:none;cursor:pointer;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:900;font-family:'Nunito',sans-serif;flex-shrink:0;transition:transform .2s;}
+.sc-dynamic-banner .dyn-btn:hover{transform:scale(1.04);}
+.sc-cart-rec{background:var(--sc-light);border:2px solid var(--sc);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:40px;}
+.sc-cart-rec .cr-text h4{font-size:14px;font-weight:900;color:var(--sc-dark);margin-bottom:3px;}
+.sc-cart-rec .cr-text p{font-size:12px;color:var(--text-mid);}
+.sc-cart-rec .cr-products{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.sc-cart-rec .cr-chip{background:#fff;border:1.5px solid var(--sc);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--sc-dark);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:all .2s;}
+.sc-cart-rec .cr-chip:hover{background:var(--sc);color:#fff;}
+.sc-personalized-label{position:absolute;top:16px;right:16px;background:var(--sc-dark);color:#fff;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;padding:5px 12px;border-radius:50px;display:flex;align-items:center;gap:5px;z-index:10;}
+.sc-carousel-wrap{overflow:hidden;position:relative;}
+.sc-carousel-track{display:flex;gap:16px;transition:transform .4s ease;}
+.sc-carousel-track .product-card{min-width:calc(20% - 13px);flex-shrink:0;}
+.carousel-nav{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
+.carousel-nav button{width:34px;height:34px;border-radius:50%;border:2px solid var(--sc);background:#fff;cursor:pointer;font-size:16px;color:var(--sc-dark);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.carousel-nav button:hover{background:var(--sc);color:#fff;}
+
+/* ── DEMO TOOLBAR ── */
+.demo-toolbar{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+.demo-panel{background:var(--sc-dark);color:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 8px 40px rgba(44,74,110,.5);width:280px;font-family:'Inter',sans-serif;}
+.demo-panel h4{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--sc-mid);margin-bottom:10px;}
+.demo-user-selector{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.demo-user-btn{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s;font-family:'Inter',sans-serif;}
+.demo-user-btn:hover,.demo-user-btn.active{background:rgba(107,174,214,.3);border-color:var(--sc);}
+.demo-user-btn .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.demo-user-btn .uname{font-size:12px;font-weight:700;color:#fff;display:block;}
+.demo-user-btn .utag{font-size:10px;color:var(--sc-mid);display:block;}
+.demo-metrics{border-top:1px solid rgba(255,255,255,.12);padding-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.demo-metric .val{font-size:18px;font-weight:700;color:#fff;display:block;}
+.demo-metric .lbl{font-size:9px;color:var(--sc-mid);letter-spacing:.8px;text-transform:uppercase;}
+.demo-toggle-btn{background:var(--sc-dark);color:#fff;border:none;cursor:pointer;width:52px;height:52px;border-radius:50%;font-size:22px;box-shadow:0 4px 20px rgba(44,74,110,.5);display:flex;align-items:center;justify-content:center;align-self:flex-end;transition:transform .2s;}
+.demo-toggle-btn:hover{transform:scale(1.1);}
+
+/* ── ORIGINAL STYLES ── */
+.top-bar{background:var(--green-dark);color:#fff;font-size:12px;font-weight:600;display:flex;justify-content:flex-end;gap:24px;padding:6px 40px;}
+.top-bar a{color:#c8eed9;cursor:pointer;transition:color .2s;}
+.top-bar a:hover{color:#fff;}
+header{background:var(--white);border-bottom:2px solid var(--green-light);padding:14px 40px;display:flex;align-items:center;gap:24px;position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(26,122,74,.10);}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer;}
+.logo-icon{width:44px;height:44px;background:var(--green);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.logo-text strong{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--green-dark);display:block;}
+.logo-text span{font-size:10px;font-weight:800;color:var(--orange);letter-spacing:2px;text-transform:uppercase;}
+.search-bar{flex:1;max-width:560px;display:flex;border:2px solid var(--green);border-radius:50px;overflow:hidden;}
+.search-bar input{flex:1;border:none;outline:none;padding:10px 20px;font-size:14px;font-family:'Nunito',sans-serif;background:#fff;}
+.search-bar button{background:var(--green);border:none;cursor:pointer;padding:10px 20px;color:#fff;font-size:16px;transition:background .2s;}
+.search-bar button:hover{background:var(--green-dark);}
+.header-actions{display:flex;align-items:center;gap:16px;margin-left:auto;}
+.header-actions a{display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:700;color:var(--text-mid);gap:2px;transition:color .2s;cursor:pointer;}
+.header-actions a:hover{color:var(--green);}
+.header-actions a .icon{font-size:20px;}
+.cart-btn{background:var(--green);color:#fff!important;padding:10px 20px;border-radius:50px;flex-direction:row!important;gap:8px!important;font-size:14px!important;font-weight:800!important;position:relative;}
+.cart-badge{position:absolute;top:-6px;right:-6px;background:var(--orange);color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+nav{background:var(--green);display:flex;align-items:center;padding:0 40px;gap:4px;overflow-x:auto;position:sticky;top:72px;z-index:150;}
+nav a{color:#fff;font-size:13px;font-weight:700;padding:12px 16px;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px;cursor:pointer;}
+nav a:hover,nav a.active{background:rgba(255,255,255,.15);border-bottom-color:var(--yellow);}
+nav a.oferta{color:var(--yellow);}
+.nav-delivery{margin-left:auto;background:var(--yellow);color:var(--green-dark)!important;border-radius:50px;padding:8px 18px!important;border-bottom:none!important;font-weight:900!important;font-size:12px!important;}
+
+/* SEARCH OVERLAY */
+.search-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:flex-start;justify-content:center;padding-top:80px;}
+.search-overlay.open{display:flex;}
+.search-box{background:#fff;border-radius:16px;width:100%;max-width:700px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.search-box h3{font-size:14px;font-weight:800;margin-bottom:16px;color:var(--text-mid);}
+.search-results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.search-result-card{background:var(--bg);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s;border:2px solid transparent;}
+.search-result-card:hover{border-color:var(--green);background:#fff;}
+.search-result-card .sr-img{height:80px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:8px;}
+.search-result-card .sr-name{font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3;}
+.search-result-card .sr-price{font-size:14px;font-weight:900;color:var(--green-dark);}
+
+/* CART DRAWER */
+.cart-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;}
+.cart-overlay.open{display:block;}
+.cart-drawer{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:#fff;z-index:700;display:flex;flex-direction:column;transition:right .3s;box-shadow:-8px 0 40px rgba(0,0,0,.15);}
+.cart-drawer.open{right:0;}
+.cart-header{padding:20px 24px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cart-header h2{font-size:18px;font-weight:900;}
+.cart-close{background:var(--bg);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cart-body{flex:1;overflow-y:auto;padding:16px 24px;}
+.cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:center;}
+.cart-item .ci-img{width:64px;height:64px;background:var(--bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.cart-item .ci-info{flex:1;}
+.cart-item .ci-name{font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.3;}
+.cart-item .ci-brand{font-size:11px;color:var(--text-light);margin-bottom:6px;}
+.cart-item .ci-price{font-size:15px;font-weight:900;color:var(--green-dark);}
+.cart-item .ci-qty{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:50px;overflow:hidden;}
+.cart-item .ci-qty button{background:none;border:none;cursor:pointer;width:30px;height:30px;font-size:16px;font-weight:700;color:var(--green-dark);}
+.cart-item .ci-qty span{font-size:14px;font-weight:800;padding:0 8px;}
+.cart-item .ci-del{background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px;padding:4px;transition:color .2s;}
+.cart-item .ci-del:hover{color:var(--red);}
+.cart-empty{text-align:center;padding:48px 0;color:var(--text-light);}
+.cart-empty .ce-icon{font-size:64px;margin-bottom:16px;}
+.cart-footer{padding:20px 24px;border-top:2px solid var(--border);background:#fff;}
+/* SC upsell in cart */
+.sc-cart-upsell{background:var(--sc-light);border:1.5px solid var(--sc);border-radius:10px;padding:12px 14px;margin-bottom:14px;}
+.sc-cart-upsell p{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--sc-dark);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.sc-upsell-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.sc-upsell-chip{background:#fff;border:1.5px solid var(--sc);border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--sc-dark);cursor:pointer;transition:all .2s;}
+.sc-upsell-chip:hover{background:var(--sc);color:#fff;}
+.cart-subtotal{display:flex;justify-content:space-between;font-size:14px;color:var(--text-mid);margin-bottom:8px;}
+.cart-total{display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px;}
+.cart-checkout-btn{width:100%;background:var(--green);color:#fff;border:none;padding:16px;border-radius:50px;font-size:16px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;transition:background .2s;margin-bottom:8px;}
+.cart-checkout-btn:hover{background:var(--green-dark);}
+.cart-coupon{display:flex;gap:8px;margin-bottom:14px;}
+.cart-coupon input{flex:1;border:1.5px solid var(--border);border-radius:50px;padding:10px 16px;font-size:13px;font-family:'Nunito',sans-serif;outline:none;}
+.cart-coupon button{background:var(--bg);border:1.5px solid var(--border);border-radius:50px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+.abandon-banner{display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--sc-dark);color:#fff;padding:14px 24px;border-radius:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;z-index:8000;box-shadow:0 8px 32px rgba(44,74,110,.4);max-width:400px;text-align:center;}
+.abandon-banner strong{display:block;font-size:15px;margin-bottom:4px;}
+.abandon-banner button{margin-top:10px;background:var(--yellow);color:var(--green-dark);border:none;padding:8px 20px;border-radius:50px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;}
+
+/* CATEGORY VIEW */
+.category-view{display:none;padding:24px 40px;max-width:1400px;margin:0 auto;}
+.category-view.active{display:block;}
+.cat-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.cat-header h1{font-size:28px;font-weight:900;}
+.back-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:6px;}
+.cat-filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+.filter-chip{background:#fff;border:1.5px solid var(--border);border-radius:50px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;}
+.filter-chip:hover,.filter-chip.active{background:var(--green);color:#fff;border-color:var(--green);}
+.cat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+
+main{max-width:1400px;margin:0 auto;padding:24px 40px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.section-header h2{font-size:20px;font-weight:900;}
+.section-header a{font-size:13px;font-weight:700;color:var(--green);cursor:pointer;}
+.mb-40{margin-bottom:40px;}
+
+.product-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;cursor:pointer;position:relative;display:flex;flex-direction:column;}
+.product-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);}
+.product-card .badge{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:4px;text-transform:uppercase;z-index:2;}
+.product-card .badge.nuevo{background:var(--green);}.product-card .badge.top{background:var(--yellow);color:var(--green-dark);}
+.product-card .fav-btn{position:absolute;top:10px;right:10px;background:#fff;border:none;cursor:pointer;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.12);z-index:2;}
+.product-card .img-wrap{height:180px;background:linear-gradient(135deg,#f0f4f0,#e8efe8);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:64px;}
+.product-card .info{padding:12px;display:flex;flex-direction:column;flex:1;}
+.product-card .info .brand{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.product-card .info .name{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:8px;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
+.product-card .info .price-wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-top:auto;}
+.product-card .info .price{font-size:18px;font-weight:900;color:var(--green-dark);}
+.product-card .info .price-old{font-size:12px;font-weight:600;color:var(--text-light);text-decoration:line-through;}
+.product-card .info .add-btn{background:var(--green);color:#fff;border:none;cursor:pointer;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;transition:background .2s;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.product-card .info .add-btn:hover{background:var(--green-dark);}
+.products-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+
+.hero-banner{border-radius:var(--radius);overflow:hidden;margin-bottom:32px;display:grid;grid-template-columns:1fr 320px;min-height:300px;background:linear-gradient(135deg,#0d4f2f 0%,#1a7a4a 60%,#22a060 100%);position:relative;}
+.hero-content{padding:50px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;}
+.hero-tag{font-size:11px;font-weight:900;color:var(--yellow);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px;}
+.hero-content h1{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;color:#fff;line-height:1.15;margin-bottom:12px;}
+.hero-content h1 em{font-style:italic;color:var(--yellow);}
+.hero-content p{color:rgba(255,255,255,.8);font-size:15px;margin-bottom:28px;max-width:400px;}
+.hero-btn{display:inline-flex;align-items:center;gap:8px;background:var(--yellow);color:var(--green-dark);padding:14px 28px;border-radius:50px;font-weight:900;font-size:15px;width:fit-content;cursor:pointer;}
+.hero-side{display:flex;flex-direction:column;gap:12px;padding:20px;background:rgba(0,0,0,.15);}
+.hero-mini-card{background:#fff;border-radius:10px;padding:12px;display:flex;gap:12px;align-items:center;cursor:pointer;}
+.hero-mini-card .mini-img{width:60px;height:60px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.hero-mini-card .mini-info .mini-name{font-size:12px;font-weight:700;margin-bottom:4px;line-height:1.3;}
+.hero-mini-card .mini-info .mini-price{font-size:15px;font-weight:900;color:var(--green-dark);}
+.hero-mini-card .mini-info .mini-old{font-size:11px;color:var(--text-light);text-decoration:line-through;}
+.hero-mini-card .mini-add{margin-left:auto;background:var(--green);color:#fff;border:none;cursor:pointer;padding:6px 12px;border-radius:50px;font-size:12px;font-weight:800;font-family:'Nunito',sans-serif;flex-shrink:0;}
+
+.trust-bar{background:var(--white);border-radius:var(--radius);padding:24px 40px;display:flex;justify-content:space-around;margin-bottom:40px;box-shadow:var(--shadow);}
+.trust-item{display:flex;align-items:center;gap:14px;}
+.trust-item .trust-icon{width:50px;height:50px;background:var(--green-light);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.trust-item .trust-text strong{display:block;font-size:14px;font-weight:900;color:var(--green-dark);}
+.trust-item .trust-text span{font-size:12px;color:var(--text-light);}
+.trust-divider{width:1px;background:var(--border);}
+
+.categories-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px;margin-bottom:40px;}
+.cat-item{background:var(--white);border-radius:var(--radius);padding:14px 8px;text-align:center;cursor:pointer;box-shadow:var(--shadow);transition:all .2s;border:2px solid transparent;}
+.cat-item:hover{border-color:var(--green);transform:translateY(-2px);}
+.cat-item .cat-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#f0f8f4,#e0f0e8);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;}
+.cat-item .cat-name{font-size:11px;font-weight:700;color:var(--text);line-height:1.3;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.product-modal{background:#fff;border-radius:20px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.3);animation:modalIn .25s ease;}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.pm-header{display:flex;justify-content:flex-end;padding:16px 20px 0;}
+.pm-close{background:var(--bg);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;}
+.pm-body{display:grid;grid-template-columns:1fr 1fr;}
+.pm-img{height:320px;background:linear-gradient(135deg,#f0f8f4,#e0f0e8);display:flex;align-items:center;justify-content:center;font-size:100px;border-radius:0 0 0 20px;position:relative;}
+.pm-info{padding:24px 32px 32px;}
+.pm-brand{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.pm-name{font-size:24px;font-weight:900;margin-bottom:10px;line-height:1.2;}
+.pm-stars{color:var(--yellow);font-size:15px;margin-bottom:16px;}
+.pm-stars span{color:var(--text-light);font-size:12px;margin-left:4px;}
+.pm-price{font-size:36px;font-weight:900;color:var(--green-dark);}
+.pm-price-old{font-size:16px;color:var(--text-light);text-decoration:line-through;}
+.pm-savings{display:inline-block;background:var(--orange-light);color:var(--orange);padding:3px 10px;border-radius:50px;font-size:12px;font-weight:800;margin:6px 0 16px;}
+/* SC badge in modal */
+.pm-sc-badge{display:inline-flex;align-items:center;gap:5px;background:var(--sc-light);border:1.5px solid var(--sc);color:var(--sc-dark);border-radius:50px;padding:4px 12px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;margin-bottom:12px;}
+.pm-variants{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.pm-variant-btn{padding:6px 16px;border-radius:50px;border:2px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;background:#fff;font-family:'Nunito',sans-serif;transition:all .2s;}
+.pm-variant-btn.active,.pm-variant-btn:hover{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.pm-qty-row{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.pm-qty{display:flex;align-items:center;border:2px solid var(--border);border-radius:50px;overflow:hidden;}
+.pm-qty button{background:none;border:none;cursor:pointer;width:36px;height:36px;font-size:18px;font-weight:700;color:var(--green-dark);}
+.pm-qty span{font-size:16px;font-weight:800;padding:0 12px;}
+.pm-add-btn{background:var(--green);color:#fff;border:none;cursor:pointer;padding:14px 28px;border-radius:50px;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s;}
+.pm-add-btn:hover{background:var(--green-dark);}
+.pm-features{border-top:1px solid var(--border);padding-top:14px;margin-top:8px;}
+.pm-features h4{font-size:13px;font-weight:800;margin-bottom:8px;}
+.pm-features ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.pm-features li{font-size:12px;color:var(--text-mid);display:flex;gap:7px;}
+.pm-features li::before{content:'✓';color:var(--green);font-weight:900;flex-shrink:0;}
+/* SC similar products in modal */
+.pm-sc-similar{margin-top:14px;padding-top:14px;border-top:1px solid var(--sc-light);}
+.pm-sc-similar h4{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:var(--sc-dark);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.pm-sc-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.pm-sc-chip{background:var(--sc-light);border:1.5px solid var(--sc);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;color:var(--sc-dark);cursor:pointer;transition:all .2s;}
+.pm-sc-chip:hover{background:var(--sc);color:#fff;}
+
+.featured-section{background:linear-gradient(135deg,#f9fdf9,#ecf7f1);border:2px solid var(--green-light);border-radius:var(--radius);padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:40px;align-items:center;}
+.featured-img{background:var(--white);border-radius:var(--radius);height:340px;display:flex;align-items:center;justify-content:center;font-size:120px;box-shadow:var(--shadow);position:relative;}
+.featured-badge{position:absolute;top:16px;left:16px;background:var(--red);color:#fff;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px;}
+.featured-info .fb{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;}
+.featured-info h2{font-size:32px;font-weight:900;margin-bottom:10px;}
+.detail-stars{color:var(--yellow);font-size:16px;margin-bottom:16px;}
+.detail-stars span{color:var(--text-light);font-size:13px;margin-left:6px;}
+.detail-price{font-size:38px;font-weight:900;color:var(--green-dark);}
+.detail-price-old{font-size:18px;color:var(--text-light);text-decoration:line-through;}
+.detail-savings{display:inline-block;background:var(--orange-light);color:var(--orange);padding:3px 10px;border-radius:50px;font-size:12px;font-weight:800;margin-top:6px;}
+.variants-row{display:flex;gap:8px;margin:16px 0;}
+.variant-btn{padding:6px 16px;border-radius:50px;border:2px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;background:#fff;font-family:'Nunito',sans-serif;transition:all .2s;}
+.variant-btn.active,.variant-btn:hover{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.qty-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+.qty-ctrl{display:flex;align-items:center;border:2px solid var(--border);border-radius:50px;overflow:hidden;}
+.qty-ctrl button{background:none;border:none;cursor:pointer;width:36px;height:36px;font-size:18px;font-weight:700;color:var(--green-dark);}
+.qty-ctrl span{font-size:16px;font-weight:800;padding:0 10px;}
+.add-to-cart-btn{background:var(--green);color:#fff;border:none;cursor:pointer;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:8px;transition:background .2s;}
+.add-to-cart-btn:hover{background:var(--green-dark);}
+.detail-features{margin-top:24px;border-top:1px solid var(--border);padding-top:20px;}
+.detail-features h4{font-size:13px;font-weight:800;margin-bottom:12px;}
+.detail-features ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.detail-features ul li{font-size:13px;color:var(--text-mid);display:flex;align-items:flex-start;gap:8px;}
+.detail-features ul li::before{content:'✓';color:var(--green);font-weight:900;flex-shrink:0;}
+
+.newsletter{background:linear-gradient(135deg,#fff4e6,#fff9f0);border-radius:var(--radius);padding:50px;display:flex;align-items:center;gap:60px;margin-bottom:40px;border:2px solid #ffe0b2;}
+.newsletter-heart{font-family:'Playfair Display',serif;font-size:60px;font-style:italic;color:var(--orange);line-height:1;flex-shrink:0;}
+.newsletter-heart span{font-size:28px;display:block;font-style:normal;font-family:'Nunito',sans-serif;font-weight:900;color:var(--text);}
+.newsletter-form h3{font-size:22px;font-weight:900;margin-bottom:6px;}
+.newsletter-form p{font-size:14px;color:var(--text-mid);margin-bottom:16px;}
+.newsletter-input{display:flex;gap:10px;}
+.newsletter-input input{flex:1;border:2px solid var(--border);border-radius:50px;padding:12px 20px;font-size:14px;font-family:'Nunito',sans-serif;outline:none;}
+.newsletter-input button{background:var(--orange);color:#fff;border:none;cursor:pointer;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:900;font-family:'Nunito',sans-serif;}
+
+footer{background:var(--green-dark);color:#fff;padding:50px 40px 24px;}
+.footer-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+.footer-brand p{margin-top:14px;font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;}
+.footer-social{display:flex;gap:10px;margin-top:16px;}
+.footer-social a{width:36px;height:36px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
+.footer-col h4{font-size:14px;font-weight:900;margin-bottom:16px;color:var(--yellow);}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.footer-col ul li a{font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;}
+.footer-bottom{max-width:1400px;margin:0 auto;padding-top:24px;border-top:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-bottom p{font-size:12px;color:rgba(255,255,255,.4);}
+.pay-icon{background:#fff;border-radius:4px;padding:3px 8px;font-size:10px;font-weight:900;color:var(--text);}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green-dark);color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:700;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ABANDON BANNER (SC Anti-abandono) -->
+<div class="abandon-banner" id="abandonBanner">
+  <strong>🤖 SmartCart detectó que querés irte…</strong>
+  ¡Tenés productos en tu carrito! Te damos un 10% OFF extra si comprás ahora.
+  <button onclick="applyAbandon()">🎁 Activar descuento</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="sc-toast"></div>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+  <div class="search-box">
+    <h3>🔍 Resultados para: "<span id="searchTerm"></span>"</h3>
+    <div class="search-results-grid" id="searchResultsGrid"></div>
+  </div>
+</div>
+
+<!-- CART OVERLAY + DRAWER -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h2>🛒 Mi carrito (<span id="cartCount">0</span>)</h2>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="sc-cart-upsell" id="scUpsell">
+      <p>🤖 SmartCart recomienda agregar:</p>
+      <div class="sc-upsell-chips" id="scUpsellChips"></div>
+    </div>
+    <div class="cart-coupon">
+      <input type="text" placeholder="Código de descuento" id="couponInput">
+      <button onclick="applyCoupon()">Aplicar</button>
+    </div>
+    <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotal">$0</span></div>
+    <div class="cart-subtotal"><span>Envío</span><span style="color:var(--green);font-weight:700;">Gratis 🎉</span></div>
+    <div class="cart-subtotal" style="color:var(--sc-dark);font-weight:700;" id="scDiscountRow" style="display:none;"><span>🤖 Descuento SmartCart</span><span id="scDiscountAmt"></span></div>
+    <div class="cart-total"><span>Total</span><span id="cartTotal">$0</span></div>
+    <button class="cart-checkout-btn" onclick="checkout()">Finalizar compra →</button>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal" onclick="if(event.target===this)closeModal()">
+  <div class="product-modal">
+    <div class="pm-header"><button class="pm-close" onclick="closeModal()">✕</button></div>
+    <div class="pm-body">
+      <div class="pm-img" id="pmImg">🛒</div>
+      <div class="pm-info">
+        <div class="pm-sc-badge">🤖 SmartCart · Personalizado para vos</div>
+        <div class="pm-brand" id="pmBrand"></div>
+        <div class="pm-name" id="pmName"></div>
+        <div class="pm-stars">★★★★★ <span id="pmReviews"></span></div>
+        <div class="pm-price" id="pmPrice"></div>
+        <div class="pm-price-old" id="pmPriceOld"></div>
+        <div class="pm-savings" id="pmSavings" style="display:none;"></div>
+        <div class="pm-variants" id="pmVariants"></div>
+        <div class="pm-qty-row">
+          <div class="pm-qty">
+            <button onclick="pmQty(-1)">−</button>
+            <span id="pmQtyVal">1</span>
+            <button onclick="pmQty(1)">+</button>
+          </div>
+          <button class="pm-add-btn" onclick="pmAddToCart()">🛒 Agregar al carrito</button>
+        </div>
+        <div class="pm-features"><h4>Descripción</h4><ul id="pmFeatures"></ul></div>
+        <div class="pm-sc-similar"><h4>🤖 También te puede interesar</h4><div class="pm-sc-chips" id="pmScChips"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY VIEW -->
+<div class="category-view" id="categoryView">
+  <div class="cat-header">
+    <button class="back-btn" onclick="closeCategory()">← Volver</button>
+    <h1 id="catTitle"></h1>
+  </div>
+  <div class="cat-filter-bar" id="catFilterBar"></div>
+  <div class="cat-grid" id="catGrid"></div>
+</div>
+
+<!-- DEMO TOOLBAR -->
+<div class="demo-toolbar">
+  <div class="demo-panel" id="demoPanel">
+    <h4>🤖 SmartCart Demo</h4>
+    <div class="demo-user-selector">
+      <button class="demo-user-btn active" onclick="switchUser('familia',this)">
+        <div class="avatar" style="background:#e8f5ee;">👩</div>
+        <div class="uinfo"><span class="uname">Claudia Mendez</span><span class="utag">Familia · Compra semanal</span></div>
+      </button>
+      <button class="demo-user-btn" onclick="switchUser('asador',this)">
+        <div class="avatar" style="background:#fce4ec;">🧔</div>
+        <div class="uinfo"><span class="uname">Diego Ramírez</span><span class="utag">Asador · Fines de semana</span></div>
+      </button>
+      <button class="demo-user-btn" onclick="switchUser('saludable',this)">
+        <div class="avatar" style="background:#e8f4fd;">🧘</div>
+        <div class="uinfo"><span class="uname">Valentina Sosa</span><span class="utag">Saludable · Fitness</span></div>
+      </button>
+    </div>
+    <div class="demo-metrics">
+      <div class="demo-metric"><span class="val">+25%</span><span class="lbl">Conversión</span></div>
+      <div class="demo-metric"><span class="val">−30%</span><span class="lbl">Abandono</span></div>
+    </div>
+  </div>
+  <button class="demo-toggle-btn" onclick="togglePanel()" title="Mostrar/ocultar panel SmartCart">🤖</button>
+</div>
+
+<!-- HOME VIEW -->
+<div id="homeView">
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <a onclick="showToast('Iniciá sesión para ver tus pedidos 👤')">Mi cuenta</a>
+  <a onclick="showToast('📍 Ingresá tu dirección')">Mis pedidos</a>
+  <a onclick="showToast('📞 Atención: Lun–Vie 9am–6pm')">Ayuda</a>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="goHome()">
+    <div class="logo-icon">🛒</div>
+    <div class="logo-text"><strong>FrescaMart</strong><span>Tu super online</span></div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Buscar productos, marcas, categorías…" onkeydown="if(event.key==='Enter')doSearch()">
+    <button onclick="doSearch()">🔍</button>
+  </div>
+  <div class="header-actions">
+    <a onclick="showToast('📍 Envíos gratis desde $15.000')"><span class="icon">🚚</span><span>Envío gratis<br>desde $15.000</span></a>
+    <a onclick="showToast('Hola, ' + currentUser.name + '! 👤')"><span class="icon">👤</span><span id="headerUser">Hola, Claudia</span></a>
+    <a class="cart-btn" onclick="openCart()"><span class="icon">🛒</span><span>Mi carrito</span><span class="cart-badge" id="cartBadge">0</span></a>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <a class="active" onclick="goHome()">🏠 Inicio</a>
+  <a onclick="openCategory('novedades')">🆕 Novedades</a>
+  <a onclick="openCategory('masvendidos')">⭐ Más vendidos</a>
+  <a onclick="openCategory('yerba')">🧉 Yerba & Mate</a>
+  <a onclick="openCategory('carnes')">🥩 Carnes</a>
+  <a onclick="openCategory('lacteos')">🥛 Lácteos</a>
+  <a onclick="openCategory('galletitas')">🍪 Galletitas</a>
+  <a onclick="openCategory('bebidas')">🥤 Bebidas</a>
+  <a onclick="openCategory('almacen')">🍝 Almacén</a>
+  <a onclick="openCategory('congelados')">❄️ Congelados</a>
+  <a onclick="openCategory('panaderia')">🥖 Panadería</a>
+  <a class="oferta" onclick="openCategory('ofertas')">🔥 Ofertas</a>
+  <a class="nav-delivery" onclick="showToast('🚚 ¡Pedí antes de las 14hs y recibís hoy!')">🚚 Envío gratis hoy</a>
+</nav>
+
+<main>
+
+<!-- SC SALUDO PERSONALIZADO -->
+<div class="sc-zone mb-40" style="padding:16px 20px 14px;" id="scGreetingZone">
+  <div class="sc-badge">🤖 SmartCart · Personalización de Sesión</div>
+  <div class="sc-user-hi" id="scGreeting">👋 <span>¡Hola, <strong>Claudia</strong>! Basado en tus compras, armamos tu semana:</span></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;" id="scTags">
+    <span style="background:#e8f4fd;color:#2c4a6e;border:1.5px solid #6baed6;border-radius:50px;padding:5px 14px;font-size:12px;font-weight:700;">📦 Reposición semanal lista</span>
+    <span style="background:#e8f5ee;color:#145e38;border:1.5px solid #1a7a4a;border-radius:50px;padding:5px 14px;font-size:12px;font-weight:700;">🎯 3 ofertas para vos</span>
+    <span style="background:#fff4e6;color:#a05000;border:1.5px solid #f07d00;border-radius:50px;padding:5px 14px;font-size:12px;font-weight:700;">⏱️ Tu compra anterior: hace 7 días</span>
+  </div>
+  <div class="sc-tooltip">IA Predictiva · Behavioral Analytics activos</div>
+</div>
+
+<!-- SC BANNER PERSONALIZADO -->
+<div class="sc-zone mb-40" style="border-radius:16px;overflow:hidden;">
+  <div class="sc-badge">🤖 SmartCart · Banner Dinámico Personalizado</div>
+  <div class="hero-banner" style="margin-bottom:0;border-radius:14px;overflow:hidden;position:relative;">
+    <div class="sc-personalized-label">🤖 Personalizado para vos</div>
+    <div class="hero-content">
+      <div class="hero-tag" id="scHeroTag">✦ Tu compra del jueves ✦</div>
+      <h1 id="scHeroTitle">Todo para <br>la cena <em>familiar</em><br>del finde</h1>
+      <p id="scHeroDesc">Seleccionamos lo que más comprás: lácteos, carnes y panadería, con descuento especial para vos hoy.</p>
+      <a class="hero-btn" onclick="openCategory('ofertas')">🛍️ Ver mi selección</a>
+    </div>
+    <div class="hero-side">
+      <div class="hero-mini-card" onclick="openProductModal('yerba-taragui')"><div class="mini-img">🧉</div><div class="mini-info"><div class="mini-name" id="sc-mini1">Yerba Taragüi 1kg</div><div class="mini-price" id="sc-mini1p">$4.200</div><div class="mini-old">$5.500</div></div><button class="mini-add" onclick="event.stopPropagation();addToCart('yerba-taragui')">+ Agregar</button></div>
+      <div class="hero-mini-card" onclick="openProductModal('asado-tira')"><div class="mini-img">🥩</div><div class="mini-info"><div class="mini-name" id="sc-mini2">Asado de Tira x kg</div><div class="mini-price" id="sc-mini2p">$6.800</div><div class="mini-old">$8.500</div></div><button class="mini-add" onclick="event.stopPropagation();addToCart('asado-tira')">+ Agregar</button></div>
+      <div class="hero-mini-card" onclick="openProductModal('facturas')"><div class="mini-img">🥐</div><div class="mini-info"><div class="mini-name" id="sc-mini3">Facturas Variadas x12</div><div class="mini-price" id="sc-mini3p">$3.600</div><div class="mini-old">$4.200</div></div><button class="mini-add" onclick="event.stopPropagation();addToCart('facturas')">+ Agregar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- SC BANNER CONTEXTUAL -->
+<div class="sc-zone mb-40" style="border-radius:16px;">
+  <div class="sc-badge">🤖 SmartCart · Banner Contextual en Tiempo Real</div>
+  <div class="sc-dynamic-banner" id="scDynBanner" style="background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;border-radius:14px;">
+    <div class="dyn-icon" id="scDynIcon">🥩</div>
+    <div class="dyn-text"><h3 id="scDynTitle">¡Tu corte favorito, ahora con 25% OFF!</h3><p id="scDynDesc">Compraste asado 3 veces este mes. Hoy tenemos vacío y costilla con descuento exclusivo.</p></div>
+    <button class="dyn-btn" id="scDynBtn" style="color:#1b5e20;" onclick="openCategory('carnes')">Ver oferta →</button>
+  </div>
+</div>
+
+<!-- SC RECOMENDACIONES AL CARRITO -->
+<div class="sc-zone mb-40" style="border-radius:16px;">
+  <div class="sc-badge">🤖 SmartCart · Recomendaciones Inteligentes al Carrito</div>
+  <div style="padding:20px 16px 12px;">
+    <div class="sc-cart-rec">
+      <div style="font-size:32px;">🤖</div>
+      <div class="cr-text"><h4>Basado en tu historial de compras:</h4><p id="scRecDesc">Clientes como vos también llevan estos productos</p></div>
+      <div class="cr-products" id="scRecChips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SC CARRUSEL PERSONALIZADO -->
+<div class="sc-zone mb-40" style="border-radius:16px;padding:24px 20px 20px;">
+  <div class="sc-badge">🤖 SmartCart · Góndola Digital Adaptativa</div>
+  <div class="section-header" style="margin-top:8px;"><h2 id="scCarouselTitle">🎯 Selección para vos esta semana</h2></div>
+  <div class="sc-carousel-wrap">
+    <div class="sc-carousel-track" id="scCarouselTrack"></div>
+  </div>
+  <div class="carousel-nav"><button onclick="slideCarousel(-1)">◀</button><button onclick="slideCarousel(1)">▶</button></div>
+  <div class="sc-tooltip">IA adaptativa · Reordena productos según perfil del usuario</div>
+</div>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item"><div class="trust-icon">🚚</div><div class="trust-text"><strong>Envíos a todo el país</strong><span>En menos de 48 horas</span></div></div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><div class="trust-icon">💬</div><div class="trust-text"><strong>Atención por WhatsApp</strong><span>Lun a Vie · 9am–6pm</span></div></div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><div class="trust-icon">🔒</div><div class="trust-text"><strong>Pagos seguros</strong><span>Compra protegida garantizada</span></div></div>
+  <div class="trust-divider"></div>
+  <div class="trust-item"><div class="trust-icon">↩️</div><div class="trust-text"><strong>Devoluciones gratis</strong><span>Hasta 30 días después</span></div></div>
+</div>
+
+<!-- CATEGORÍAS -->
+<div class="section-header"><h2>Categorías</h2></div>
+<div class="categories-grid mb-40">
+  <div class="cat-item" onclick="openCategory('yerba')"><div class="cat-icon">🧉</div><div class="cat-name">Yerba & Mate</div></div>
+  <div class="cat-item" onclick="openCategory('carnes')"><div class="cat-icon">🥩</div><div class="cat-name">Carnes y Fiambres</div></div>
+  <div class="cat-item" onclick="openCategory('lacteos')"><div class="cat-icon">🥛</div><div class="cat-name">Lácteos</div></div>
+  <div class="cat-item" onclick="openCategory('panaderia')"><div class="cat-icon">🍞</div><div class="cat-name">Panadería</div></div>
+  <div class="cat-item" onclick="openCategory('galletitas')"><div class="cat-icon">🍪</div><div class="cat-name">Galletitas</div></div>
+  <div class="cat-item" onclick="openCategory('bebidas')"><div class="cat-icon">🥤</div><div class="cat-name">Bebidas</div></div>
+  <div class="cat-item" onclick="openCategory('congelados')"><div class="cat-icon">❄️</div><div class="cat-name">Congelados</div></div>
+  <div class="cat-item" onclick="openCategory('almacen')"><div class="cat-icon">🛒</div><div class="cat-name">Almacén</div></div>
+</div>
+
+<!-- SC ANTI-ABANDONO: STOCK ALERT -->
+<div class="sc-zone mb-40" style="border-radius:16px;">
+  <div class="sc-badge">🤖 SmartCart · Rotación de Stock + Anti-Abandono</div>
+  <div style="padding:20px 16px 12px;">
+    <div class="section-header"><h2>⚡ Ofertas por tiempo limitado</h2><a onclick="openCategory('ofertas')">Ver todas →</a></div>
+    <div class="products-grid" id="scStockGrid"></div>
+  </div>
+</div>
+
+<!-- MÁS ELEGIDOS -->
+<div class="section-header"><h2>⭐ Más elegidos</h2><a onclick="openCategory('masvendidos')">Ver todos →</a></div>
+<div class="products-grid mb-40" id="masElegidosGrid"></div>
+
+<!-- FEATURED -->
+<div class="section-header"><h2>🌟 Producto destacado</h2></div>
+<div class="featured-section">
+  <div class="featured-img">
+    <span class="featured-badge">Best Seller</span>
+    <svg viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg" style="width:220px;height:220px;">
+      <ellipse cx="130" cy="80" rx="90" ry="28" fill="#3e2723"/><ellipse cx="130" cy="72" rx="90" ry="28" fill="#4e342e"/>
+      <rect x="40" y="72" width="180" height="30" fill="#f9a825"/>
+      <ellipse cx="130" cy="120" rx="90" ry="28" fill="#3e2723"/><ellipse cx="130" cy="112" rx="90" ry="28" fill="#5d4037"/>
+      <ellipse cx="130" cy="72" rx="76" ry="20" fill="#6d4c41"/><ellipse cx="130" cy="72" rx="36" ry="10" fill="#3e2723"/>
+      <rect x="108" y="68" width="44" height="8" rx="3" fill="#8d6e63"/>
+      <rect x="48" y="78" width="164" height="8" rx="4" fill="#ffb300"/>
+      <ellipse cx="130" cy="148" rx="80" ry="14" fill="#1a1a1a" opacity=".12"/>
+    </svg>
+    <div class="sc-cucarda"><div class="sc-tag">🤖 SmartCart Pick</div></div>
+  </div>
+  <div class="featured-info">
+    <div class="fb">● FrescaMart Selección ●</div>
+    <h2>Alfajor Havanna Mar del Plata</h2>
+    <div class="detail-stars">★★★★★ <span>(1.482 reseñas)</span></div>
+    <div class="detail-price">$2.800</div><div class="detail-price-old">$3.500</div>
+    <div class="detail-savings">Ahorrás $700 (20%)</div>
+    <div class="variants-row">
+      <button class="variant-btn active">Chocolate negro</button>
+      <button class="variant-btn">Chocolate blanco</button>
+      <button class="variant-btn">Mixto x6</button>
+    </div>
+    <div class="qty-row">
+      <div class="qty-ctrl"><button onclick="featQty(-1)">−</button><span id="featQtyVal">1</span><button onclick="featQty(1)">+</button></div>
+      <button class="add-to-cart-btn" onclick="addToCart('havanna')">🛒 Agregar al carrito</button>
+    </div>
+    <div class="detail-features"><h4>¿Por qué te va a encantar?</h4><ul>
+      <li>El alfajor argentino más famoso del mundo, hecho en Mar del Plata</li>
+      <li>Relleno de dulce de leche cremoso de primera calidad</li>
+      <li>Bañado en chocolate fino, sin conservantes artificiales</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="newsletter">
+  <div class="newsletter-heart">i love<br><span>FrescaMart</span></div>
+  <div class="newsletter-form">
+    <h3>¡Recibí todas las ofertas!</h3>
+    <p>Personalizadas por SmartCart según tu historial de compras 🤖</p>
+    <div class="newsletter-input">
+      <input type="email" id="nlEmail" placeholder="tucorreo@email.com"/>
+      <button onclick="subscribeNewsletter()">Suscribirme 🎁</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo"><div class="logo-icon">🛒</div><div class="logo-text"><strong style="color:#fff;">FrescaMart</strong><span>Tu super online</span></div></div>
+      <p>Tu supermercado online con personalización inteligente gracias a SmartCart.</p>
+      <div class="footer-social"><a onclick="showToast('Facebook')">📘</a><a onclick="showToast('Instagram')">📷</a><a onclick="showToast('Twitter')">🐦</a><a onclick="showToast('YouTube')">▶️</a></div>
+    </div>
+    <div class="footer-col"><h4>Categorías</h4><ul>
+      <li><a onclick="openCategory('yerba')">Yerba & Mate</a></li>
+      <li><a onclick="openCategory('bebidas')">Bebidas</a></li>
+      <li><a onclick="openCategory('carnes')">Carnes</a></li>
+      <li><a onclick="openCategory('galletitas')">Galletitas</a></li>
+      <li><a onclick="openCategory('lacteos')">Lácteos</a></li>
+      <li><a onclick="openCategory('almacen')">Almacén</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Información</h4><ul>
+      <li><a onclick="showToast('Quiénes somos')">Quiénes somos</a></li>
+      <li><a onclick="showToast('Cómo comprar')">Cómo comprar</a></li>
+      <li><a onclick="showToast('Medios de pago aceptados')">Medios de pago</a></li>
+      <li><a onclick="showToast('Devoluciones sin costo')">Devoluciones</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Contacto</h4><ul>
+      <li><a onclick="showToast('📧 hola@frescamart.com')">📧 hola@frescamart.com</a></li>
+      <li><a onclick="showToast('💬 WhatsApp: 11 4888-2200')">💬 WhatsApp</a></li>
+      <li><a onclick="showToast('📍 Av. Corrientes 1250, CABA')">📍 CABA</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom">
+    <p>© FrescaMart 2024/2025 · Powered by SmartCart AI</p>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:11px;color:rgba(255,255,255,.4);">Pagos seguros:</span>
+      <span class="pay-icon" style="color:#1a1f71;">VISA</span><span class="pay-icon" style="color:#eb001b;">MC</span><span class="pay-icon" style="color:#009ee3;">MP</span><span class="pay-icon">NARANJA</span>
+    </div>
+  </div>
+</footer>
+</div><!-- /homeView -->
+
+<script>
+const PRODUCTS = {
+  'yerba-taragui':{id:'yerba-taragui',brand:'Taragüi',name:'Yerba mate Taragüi con palo 1kg',price:4200,priceOld:5990,badge:'-30%',emoji:'🧉',cat:'yerba',reviews:'(2.841 reseñas)',savings:'Ahorrás $1.790 (30%)',variants:['Con palo','Sin palo','Suave'],features:['La yerba más vendida de Argentina','Blend tradicional mendocino','Envasada al vacío para mayor frescura','Rendimiento superior: hasta 25 cebadas'],similar:['leche-sancor','pan-bimbo','quilmes']},
+  'asado-tira':{id:'asado-tira',brand:'Swift',name:'Asado de Tira x kg',price:6800,priceOld:8500,badge:'Oferta',emoji:'🥩',cat:'carnes',reviews:'(1.234 reseñas)',savings:'Ahorrás $1.700 (20%)',variants:['Por kg','x2 kg','x3 kg'],features:['Corte tradicional para asado','Selección premium de primera calidad','Refrigerado a temperatura controlada','Ideal para parrilla a carbón o gas'],similar:['quilmes','coca-cola','papa-lays']},
+  'facturas':{id:'facturas',brand:'Panadería FrescaMart',name:'Facturas Variadas x12',price:3600,priceOld:4200,badge:'-14%',emoji:'🥐',cat:'panadería',reviews:'(894 reseñas)',savings:'Ahorrás $600 (14%)',variants:['x12 unidades','x24 unidades'],features:['Horneadas cada mañana en nuestro obrador','Surtido de medialunas, vigilantes y berlinesas','Sin conservantes artificiales'],similar:['leche-sancor','yerba-taragui','pan-bimbo']},
+  'havanna':{id:'havanna',brand:'Havanna',name:'Alfajor Havanna Mar del Plata',price:2800,priceOld:3500,badge:'Best Seller',emoji:'🍫',cat:'galletitas',reviews:'(1.482 reseñas)',savings:'Ahorrás $700 (20%)',variants:['Chocolate negro','Chocolate blanco','Mixto x6'],features:['El alfajor argentino más famoso del mundo','Relleno de dulce de leche cremoso','Bañado en chocolate fino, sin conservantes'],similar:['pepitos','milka-oreo','mani-king']},
+  'pan-bimbo':{id:'pan-bimbo',brand:'Bimbo',name:'Pan lactal Bimbo blanco sin corteza 500g',price:1890,priceOld:null,badge:'Top',emoji:'🍞',cat:'panadería',reviews:'(3.102 reseñas)',savings:null,variants:['Sin corteza','Con corteza','Integral'],features:['Textura suave y esponjosa','Ideal para sándwich y tostadas','Bolsa resellable para mayor frescura'],similar:['leche-sancor','yerba-taragui','havanna']},
+  'leche-sancor':{id:'leche-sancor',brand:'SanCor',name:'Leche entera SanCor 1L x6',price:4800,priceOld:5400,badge:'-11%',emoji:'🥛',cat:'lacteos',reviews:'(2.203 reseñas)',savings:'Ahorrás $600 (11%)',variants:['Entera x6','Descremada x6','Semidescremada x6'],features:['Alta calidad nutricional','Enriquecida con vitaminas A y D','Marca líder en Argentina'],similar:['queso-serenisima','yogur-actimel','facturas']},
+  'milka-oreo':{id:'milka-oreo',brand:'Milka',name:'Chocolate Milka Oreo relleno 135g',price:1850,priceOld:2600,badge:'-29%',emoji:'🍫',cat:'galletitas',reviews:'(1.756 reseñas)',savings:'Ahorrás $750 (29%)',variants:['Oreo 135g','Almendras 135g','Mousse 95g'],features:['Chocolate alpino con relleno Oreo','Perfecta combinación de sabores','Importado de Europa'],similar:['pepitos','havanna','mani-king']},
+  'paleta-swift':{id:'paleta-swift',brand:'Swift',name:'Paleta de cerdo ahumada Swift 500g',price:5490,priceOld:7200,badge:'Nuevo',emoji:'🥩',cat:'carnes',reviews:'(678 reseñas)',savings:'Ahorrás $1.710 (24%)',variants:['500g','1kg'],features:['Ahumado artesanal','Lista para calentar y servir','Sin conservantes artificiales'],similar:['asado-tira','quilmes','papa-lays']},
+  'aceite-cocinero':{id:'aceite-cocinero',brand:'Cocinero',name:'Aceite de girasol Cocinero 1.5L',price:3100,priceOld:null,badge:null,emoji:'🫙',cat:'almacen',reviews:'(4.521 reseñas)',savings:null,variants:['1.5L','3L','900ml'],features:['100% girasol de alta calidad','Ideal para frituras y aderezos','0% grasas trans'],similar:['fideos-knorr','papa-lays','leche-sancor']},
+  'pepitos':{id:'pepitos',brand:'Arcor',name:'Galletitas Pepitos chocolate rellenas 250g',price:1290,priceOld:1610,badge:'-20%',emoji:'🍪',cat:'galletitas',reviews:'(2.987 reseñas)',savings:'Ahorrás $320 (20%)',variants:['250g','500g'],features:['Relleno de crema de chocolate','Masa crocante premium','Sin grasas trans'],similar:['milka-oreo','havanna','mani-king']},
+  'quilmes':{id:'quilmes',brand:'Quilmes',name:'Cerveza Quilmes Clásica lata 473ml x6',price:5800,priceOld:null,badge:null,emoji:'🍺',cat:'bebidas',reviews:'(3.412 reseñas)',savings:null,variants:['473ml x6','1L x6','Litro retornable'],features:['La cerveza argentina más querida','Alc. 4,9%','Perfecta para el asado del finde'],similar:['asado-tira','papa-lays','coca-cola']},
+  'queso-serenisima':{id:'queso-serenisima',brand:'La Serenísima',name:'Queso cremoso La Serenísima x 400g',price:3600,priceOld:4800,badge:'-25%',emoji:'🧀',cat:'lacteos',reviews:'(1.892 reseñas)',savings:'Ahorrás $1.200 (25%)',variants:['400g','800g','1kg'],features:['Queso cremoso de textura suave','Ideal para tostadas, pizzas y pastas','Elaborado con leche fresca de tambo'],similar:['leche-sancor','yogur-actimel','pan-bimbo']},
+  'mani-king':{id:'mani-king',brand:'Maní King',name:'Maní con chocolate bañado 300g',price:2100,priceOld:null,badge:'Nuevo',emoji:'🥜',cat:'galletitas',reviews:'(456 reseñas)',savings:null,variants:['300g','500g'],features:['Maní seleccionado de primera calidad','Bañado en chocolate cobertura','Sin TACC'],similar:['pepitos','milka-oreo','havanna']},
+  'fideos-knorr':{id:'fideos-knorr',brand:'Knorr',name:'Fideos tallarín Matarazzo 500g',price:1450,priceOld:null,badge:null,emoji:'🍝',cat:'almacen',reviews:'(2.134 reseñas)',savings:null,variants:['500g','1kg','Spaghetti 500g'],features:['Harina de trigo candeal de primera','Textura perfecta al dente','Rinde hasta 4 porciones'],similar:['aceite-cocinero','leche-sancor','pan-bimbo']},
+  'coca-cola':{id:'coca-cola',brand:'Coca-Cola',name:'Coca-Cola 2.25L',price:1800,priceOld:2200,badge:'-18%',emoji:'🥤',cat:'bebidas',reviews:'(5.234 reseñas)',savings:'Ahorrás $400 (18%)',variants:['2.25L','1.5L x3','Lata 354ml x6'],features:['La bebida más conocida del mundo','Sabor original e inconfundible','Perfecta fría con hielo'],similar:['quilmes','papa-lays','pepitos']},
+  'yogur-actimel':{id:'yogur-actimel',brand:'Danone',name:'Yogur Actimel x8 unidades',price:3200,priceOld:3800,badge:'-16%',emoji:'🥛',cat:'lacteos',reviews:'(1.234 reseñas)',savings:'Ahorrás $600 (16%)',variants:['x8 natural','x8 frutilla','x8 multifrutas'],features:['Con L. Casei Defensis activo','Ayuda a las defensas naturales','Bajo en grasas'],similar:['leche-sancor','queso-serenisima','pan-bimbo']},
+  'papa-lays':{id:'papa-lays',brand:"Lay's",name:"Papas fritas Lay's clásicas 200g",price:1600,priceOld:1900,badge:'-16%',emoji:'🥔',cat:'almacen',reviews:'(3.567 reseñas)',savings:"Ahorrás $300 (16%)",variants:['200g clásica','200g sal y pimienta','200g cebolla'],features:["Crocantes y doradas a la perfección","Sin conservantes artificiales","Ideal para picadas y reuniones"],similar:['coca-cola','quilmes','mani-king']},
+};
+
+const CATEGORIES = {
+  'ofertas':{label:'🔥 Ofertas especiales',filters:['Todos','Hasta 20% OFF','Hasta 30% OFF','Hasta 50% OFF'],products:['yerba-taragui','milka-oreo','paleta-swift','queso-serenisima','pepitos','leche-sancor','coca-cola','yogur-actimel','papa-lays']},
+  'masvendidos':{label:'⭐ Más vendidos',filters:['Todos','Más valorados','Más comprados','Recomendados'],products:['yerba-taragui','pan-bimbo','leche-sancor','quilmes','fideos-knorr','aceite-cocinero','coca-cola','havanna']},
+  'novedades':{label:'🆕 Novedades',filters:['Todos','Esta semana','Este mes'],products:['paleta-swift','mani-king','yogur-actimel','papa-lays','milka-oreo']},
+  'yerba':{label:'🧉 Yerba & Mate',filters:['Todos','Con palo','Sin palo','Suave','Fuerte'],products:['yerba-taragui','yerba-taragui','yerba-taragui']},
+  'carnes':{label:'🥩 Carnes y Fiambres',filters:['Todos','Vacuna','Cerdo','Pollo','Fiambres'],products:['asado-tira','paleta-swift','asado-tira','paleta-swift']},
+  'lacteos':{label:'🥛 Lácteos',filters:['Todos','Leche','Quesos','Yogures','Manteca'],products:['leche-sancor','queso-serenisima','yogur-actimel','leche-sancor']},
+  'galletitas':{label:'🍪 Galletitas y Golosinas',filters:['Todos','Rellenas','Simples','Chocolates','Alfajores'],products:['pepitos','milka-oreo','havanna','mani-king','pepitos','milka-oreo']},
+  'bebidas':{label:'🥤 Bebidas y Gaseosas',filters:['Todos','Gaseosas','Cervezas','Agua','Jugos'],products:['coca-cola','quilmes','coca-cola','quilmes']},
+  'almacen':{label:'🛒 Almacén',filters:['Todos','Aceites','Pastas','Conservas','Arroz'],products:['aceite-cocinero','fideos-knorr','papa-lays','aceite-cocinero','fideos-knorr']},
+  'congelados':{label:'❄️ Congelados',filters:['Todos','Pizzas','Empanadas','Vegetales','Helados'],products:['paleta-swift','asado-tira','leche-sancor']},
+  'panaderia':{label:'🥖 Panadería',filters:['Todos','Pan de molde','Facturas','Tostadas','Sin gluten'],products:['facturas','pan-bimbo','facturas','pan-bimbo']},
+};
+
+const USER_PROFILES = {
+  familia:{name:'Claudia',heroTag:'✦ Tu compra del jueves ✦',heroTitle:'Todo para <br>la cena <em>familiar</em><br>del finde',heroDesc:'Seleccionamos lo que más comprás: lácteos, carnes y panadería, con descuento especial.',dynIcon:'🥩',dynTitle:'¡Tu corte favorito, ahora con 25% OFF!',dynDesc:'Compraste asado 3 veces este mes. Hoy tenemos vacío y costilla con descuento exclusivo.',dynBtn:'Ver oferta de carnes →',dynCat:'carnes',carousel:['yerba-taragui','leche-sancor','asado-tira','pan-bimbo','queso-serenisima','milka-oreo'],rec:['quilmes','papa-lays','coca-cola'],recDesc:'Clientes como vos también llevan estos productos',tags:['📦 Reposición semanal lista','🎯 3 ofertas para vos','⏱️ Tu compra anterior: hace 7 días'],greeting:'¡Hola, <strong>Claudia</strong>! Basado en tus compras, armamos tu semana:'},
+  asador:{name:'Diego',heroTag:'✦ Todo para el asado del domingo ✦',heroTitle:'La parrilla<br>perfecta <em>te espera</em><br>este finde',heroDesc:'Carnes seleccionadas, cervezas heladas y todo el acompañamiento para tu asado premium.',dynIcon:'🍺',dynTitle:'6-pack Quilmes con 15% OFF exclusivo',dynDesc:'Tu última compra fue hace 6 días. Renovamos tu stock de cervezas con precio especial.',dynBtn:'Ver cervezas →',dynCat:'bebidas',carousel:['asado-tira','quilmes','paleta-swift','papa-lays','coca-cola','pepitos'],rec:['yerba-taragui','pan-bimbo','milka-oreo'],recDesc:'Para completar tu asado perfecto:',tags:['🥩 3 cortes de carne en oferta hoy','🍺 Pack de cervezas con 15% OFF','🔥 "Asador frecuente" — beneficios especiales'],greeting:'¡Hola, <strong>Diego</strong>! Armamos tu canasta de asado:'},
+  saludable:{name:'Valentina',heroTag:'✦ Tus productos fit de la semana ✦',heroTitle:'Come <em>sano</em>,<br>vivì mejor,<br>ahorrá más',heroDesc:'Productos orgánicos, sin TACC y naturales seleccionados según tus preferencias de salud.',dynIcon:'🥛',dynTitle:'Yogur Actimel x8 con 16% OFF para vos',dynDesc:'Compraste yogur las últimas 4 semanas. Mantenemos tu descuento especial de fidelidad.',dynBtn:'Ver lácteos saludables →',dynCat:'lacteos',carousel:['yogur-actimel','leche-sancor','queso-serenisima','pan-bimbo','mani-king','yerba-taragui'],rec:['aceite-cocinero','fideos-knorr','queso-serenisima'],recDesc:'Opciones saludables que te pueden interesar:',tags:['🌿 5 productos orgánicos en oferta','💪 Especial fitness — proteínas y snacks','⚡ Sección Sin TACC actualizada'],greeting:'¡Hola, <strong>Valentina</strong>! Tu selección saludable de hoy:'},
+};
+
+let currentUser = USER_PROFILES.familia;
+let cart = {};
+let scDiscount = 0;
+let carouselOffset = 0;
+
+// ── SMARTCART USER SWITCH ──
+function switchUser(profileId, btn) {
+  currentUser = USER_PROFILES[profileId];
+  document.querySelectorAll('.demo-user-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyUserProfile();
+  showToast('🤖 SmartCart personalizando para ' + currentUser.name + '…');
+}
+
+function applyUserProfile() {
+  const u = currentUser;
+  document.getElementById('headerUser').textContent = 'Hola, ' + u.name;
+  document.getElementById('scHeroTag').textContent = u.heroTag;
+  document.getElementById('scHeroTitle').innerHTML = u.heroTitle;
+  document.getElementById('scHeroDesc').textContent = u.heroDesc;
+  document.getElementById('scDynIcon').textContent = u.dynIcon;
+  document.getElementById('scDynTitle').textContent = u.dynTitle;
+  document.getElementById('scDynDesc').textContent = u.dynDesc;
+  document.getElementById('scDynBtn').textContent = u.dynBtn;
+  document.getElementById('scDynBtn').onclick = ()=>openCategory(u.dynCat);
+  document.getElementById('scGreeting').innerHTML = '👋 <span>' + u.greeting + '</span>';
+  document.getElementById('scRecDesc').textContent = u.recDesc;
+  // Tags
+  document.getElementById('scTags').innerHTML = u.tags.map(tag=>`<span style="background:#e8f4fd;color:#2c4a6e;border:1.5px solid #6baed6;border-radius:50px;padding:5px 14px;font-size:12px;font-weight:700;">${tag}</span>`).join('');
+  // Rec chips
+  document.getElementById('scRecChips').innerHTML = u.rec.map(pid=>{
+    const p=PRODUCTS[pid];if(!p)return'';
+    return`<div class="cr-chip" onclick="addToCart('${p.id}')">${p.emoji} ${p.brand}</div>`;
+  }).join('');
+  // Carousel
+  carouselOffset = 0;
+  renderCarousel();
+  // Upsell in cart
+  renderUpsell();
+}
+
+function renderCarousel() {
+  const u = currentUser;
+  const track = document.getElementById('scCarouselTrack');
+  track.innerHTML = u.carousel.map(pid=>{
+    const p=PRODUCTS[pid];if(!p)return'';
+    return`<div class="product-card" onclick="openProductModal('${p.id}')">
+      <div class="sc-cucarda"><div class="sc-tag">🤖 Para vos</div></div>
+      ${p.badge?`<span class="badge">${p.badge}</span>`:''}
+      <button class="fav-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='♡'?'♥':'♡';this.style.color=this.textContent==='♥'?'var(--red)':''">♡</button>
+      <div class="img-wrap">${p.emoji}</div>
+      <div class="info">
+        <div class="brand">${p.brand}</div>
+        <div class="name">${p.name}</div>
+        <div class="price-wrap">
+          <div><div class="price">$${p.price.toLocaleString('es-AR')}</div>${p.priceOld?`<div class="price-old">$${p.priceOld.toLocaleString('es-AR')}</div>`:''}</div>
+          <button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ Agregar</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function slideCarousel(dir) {
+  const track = document.getElementById('scCarouselTrack');
+  const maxOffset = Math.max(0, currentUser.carousel.length - 5);
+  carouselOffset = Math.max(0, Math.min(maxOffset, carouselOffset + dir));
+  const w = track.parentElement.offsetWidth / 5;
+  track.style.transform = `translateX(-${carouselOffset * (w + 16)}px)`;
+}
+
+function renderUpsell() {
+  const chips = document.getElementById('scUpsellChips');
+  if(!chips) return;
+  chips.innerHTML = currentUser.rec.map(pid=>{
+    const p=PRODUCTS[pid];if(!p)return'';
+    return`<div class="sc-upsell-chip" onclick="addToCart('${p.id}')">${p.emoji} ${p.brand} +</div>`;
+  }).join('');
+}
+
+// ── CART ──
+function addToCart(pid, qty=1) {
+  const p = PRODUCTS[pid]; if(!p) return;
+  if(cart[pid]) cart[pid].qty += qty;
+  else cart[pid] = {pid, qty, product:p};
+  updateCartBadge();
+  showToast('🛒 ' + p.name.substring(0,28) + '… agregado!');
+  renderCart();
+  // trigger abandon check after some items
+  if(Object.keys(cart).length >= 2) setTimeout(()=>triggerAbandon(), 20000);
+}
+function removeFromCart(pid){delete cart[pid];updateCartBadge();renderCart();}
+function changeQty(pid,delta){if(!cart[pid])return;cart[pid].qty=Math.max(1,cart[pid].qty+delta);renderCart();updateCartBadge();}
+function updateCartBadge(){const t=Object.values(cart).reduce((s,i)=>s+i.qty,0);document.getElementById('cartBadge').textContent=t;}
+
+function renderCart() {
+  const body = document.getElementById('cartBody');
+  const footer = document.getElementById('cartFooter');
+  const count = document.getElementById('cartCount');
+  const items = Object.values(cart);
+  count.textContent = items.reduce((s,i)=>s+i.qty,0);
+  if(items.length===0){body.innerHTML='<div class="cart-empty"><div class="ce-icon">🛒</div><p>Tu carrito está vacío.<br>SmartCart te sugiere productos cuando agregues algo!</p></div>';footer.style.display='none';return;}
+  let total=0;
+  body.innerHTML=items.map(({pid,qty,product:p})=>{total+=p.price*qty;return`<div class="cart-item"><div class="ci-img">${p.emoji}</div><div class="ci-info"><div class="ci-brand">${p.brand}</div><div class="ci-name">${p.name}</div><div class="ci-price">$${(p.price*qty).toLocaleString('es-AR')}</div></div><div class="ci-qty"><button onclick="changeQty('${pid}',-1)">−</button><span>${qty}</span><button onclick="changeQty('${pid}',1)">+</button></div><button class="ci-del" onclick="removeFromCart('${pid}')">🗑</button></div>`;}).join('');
+  const discTotal = total - scDiscount;
+  document.getElementById('cartSubtotal').textContent='$'+total.toLocaleString('es-AR');
+  document.getElementById('cartTotal').textContent='$'+discTotal.toLocaleString('es-AR');
+  const dr = document.getElementById('scDiscountRow');
+  if(scDiscount>0){dr.style.display='flex';document.getElementById('scDiscountAmt').textContent='−$'+scDiscount.toLocaleString('es-AR');}
+  else dr.style.display='none';
+  footer.style.display='block';
+  renderUpsell();
+}
+
+function openCart(){renderCart();document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartDrawer').classList.add('open');}
+function closeCart(){document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartDrawer').classList.remove('open');}
+function checkout(){closeCart();showToast('✅ ¡Compra finalizada! SmartCart guardó tus preferencias.');cart={};scDiscount=0;updateCartBadge();renderCart();}
+function applyCoupon(){const v=document.getElementById('couponInput').value.trim().toUpperCase();if(v==='SMART10'){scDiscount=500;showToast('✅ Cupón SmartCart aplicado: −$500!');renderCart();}else showToast('❌ Cupón inválido. Probá con SMART10');}
+
+// ── ANTI-ABANDONO ──
+function triggerAbandon(){
+  if(Object.keys(cart).length>0&&document.getElementById('cartDrawer').style.right!=='0px'){
+    document.getElementById('abandonBanner').style.display='block';
+    setTimeout(()=>document.getElementById('abandonBanner').style.display='none',8000);
+  }
+}
+function applyAbandon(){document.getElementById('abandonBanner').style.display='none';scDiscount=800;showToast('🎁 ¡10% OFF aplicado! Descuento de $800 en tu carrito.');if(Object.values(cart).length)openCart();}
+// simulate abandon on mouse leaving top of page
+document.addEventListener('mouseleave',(e)=>{if(e.clientY<10&&Object.keys(cart).length>0)document.getElementById('abandonBanner').style.display='block';});
+
+// ── SEARCH ──
+function doSearch(){
+  const term=document.getElementById('searchInput').value.trim();if(!term)return;
+  document.getElementById('searchTerm').textContent=term;
+  const results=Object.values(PRODUCTS).filter(p=>p.name.toLowerCase().includes(term.toLowerCase())||p.brand.toLowerCase().includes(term.toLowerCase())||p.cat.toLowerCase().includes(term.toLowerCase()));
+  const grid=document.getElementById('searchResultsGrid');
+  if(!results.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:#888;">No encontramos resultados. 🤖 SmartCart sugiere: <strong>Yerba, Leche, Asado</strong></div>';}
+  else{grid.innerHTML=results.map(p=>`<div class="search-result-card" onclick="closeSearch();openProductModal('${p.id}')"><div class="sr-img">${p.emoji}</div><div class="sr-name">${p.name}</div><div class="sr-price">$${p.price.toLocaleString('es-AR')}</div></div>`).join('');}
+  document.getElementById('searchOverlay').classList.add('open');
+}
+function closeSearch(){document.getElementById('searchOverlay').classList.remove('open');}
+
+// ── PRODUCT MODAL ──
+let currentModal=null;let pmQtyValue=1;
+function openProductModal(pid){
+  const p=PRODUCTS[pid];if(!p)return;
+  currentModal=p;pmQtyValue=1;
+  document.getElementById('pmImg').textContent=p.emoji;
+  document.getElementById('pmBrand').textContent=p.brand;
+  document.getElementById('pmName').textContent=p.name;
+  document.getElementById('pmReviews').textContent=p.reviews;
+  document.getElementById('pmPrice').textContent='$'+p.price.toLocaleString('es-AR');
+  document.getElementById('pmPriceOld').textContent=p.priceOld?'$'+p.priceOld.toLocaleString('es-AR'):'';
+  const se=document.getElementById('pmSavings');if(p.savings){se.textContent=p.savings;se.style.display='inline-block';}else se.style.display='none';
+  document.getElementById('pmQtyVal').textContent=1;
+  document.getElementById('pmVariants').innerHTML=(p.variants||[]).map((v,i)=>`<button class="pm-variant-btn ${i===0?'active':''}" onclick="this.parentNode.querySelectorAll('.pm-variant-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">${v}</button>`).join('');
+  document.getElementById('pmFeatures').innerHTML=(p.features||[]).map(f=>`<li>${f}</li>`).join('');
+  document.getElementById('pmScChips').innerHTML=(p.similar||[]).map(sid=>{const s=PRODUCTS[sid];if(!s)return'';return`<div class="pm-sc-chip" onclick="closeModal();openProductModal('${s.id}')">${s.emoji} ${s.name.substring(0,20)}…</div>`;}).join('');
+  document.getElementById('productModal').classList.add('open');
+}
+function closeModal(){document.getElementById('productModal').classList.remove('open');currentModal=null;}
+function pmQty(d){pmQtyValue=Math.max(1,pmQtyValue+d);document.getElementById('pmQtyVal').textContent=pmQtyValue;}
+function pmAddToCart(){if(currentModal){addToCart(currentModal.id,pmQtyValue);closeModal();}}
+
+// ── CATEGORY VIEW ──
+function openCategory(catId){
+  const cat=CATEGORIES[catId];if(!cat)return;
+  document.getElementById('homeView').style.display='none';
+  const cv=document.getElementById('categoryView');cv.classList.add('active');
+  document.getElementById('catTitle').textContent=cat.label;
+  document.getElementById('catFilterBar').innerHTML=cat.filters.map((f,i)=>`<button class="filter-chip ${i===0?'active':''}" onclick="this.parentNode.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));this.classList.add('active');showToast('Filtrando: ${f}')">${f}</button>`).join('');
+  document.getElementById('catGrid').innerHTML=cat.products.map(pid=>{
+    const p=PRODUCTS[pid];if(!p)return'';
+    return`<div class="product-card" onclick="openProductModal('${p.id}')">
+      <div class="sc-cucarda"><div class="sc-tag">🤖 SC</div></div>
+      ${p.badge?`<span class="badge">${p.badge}</span>`:''}
+      <button class="fav-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='♡'?'♥':'♡';this.style.color=this.textContent==='♥'?'var(--red)':''">♡</button>
+      <div class="img-wrap">${p.emoji}</div>
+      <div class="info"><div class="brand">${p.brand}</div><div class="name">${p.name}</div>
+      <div class="price-wrap"><div><div class="price">$${p.price.toLocaleString('es-AR')}</div>${p.priceOld?`<div class="price-old">$${p.priceOld.toLocaleString('es-AR')}</div>`:''}</div>
+      <button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ Agregar</button></div></div>
+    </div>`;
+  }).join('');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function closeCategory(){document.getElementById('homeView').style.display='block';document.getElementById('categoryView').classList.remove('active');}
+function goHome(){document.getElementById('homeView').style.display='block';document.getElementById('categoryView').classList.remove('active');}
+
+// ── GRIDS ──
+function renderGrid(cid, pids, scBadge=false) {
+  const el=document.getElementById(cid);if(!el)return;
+  el.innerHTML=pids.map(pid=>{
+    const p=PRODUCTS[pid];if(!p)return'';
+    return`<div class="product-card" onclick="openProductModal('${p.id}')">
+      ${scBadge?`<div class="sc-cucarda"><div class="sc-tag sc-tag-${p.id==='paleta-swift'?'red':'orange'}">${p.id==='paleta-swift'?'⏰ Vence pronto':'📦 Sobrestock'}</div></div>`:''}
+      ${p.badge?`<span class="badge">${p.badge}</span>`:''}
+      <button class="fav-btn" onclick="event.stopPropagation();this.textContent=this.textContent==='♡'?'♥':'♡';this.style.color=this.textContent==='♥'?'var(--red)':''">♡</button>
+      <div class="img-wrap">${p.emoji}</div>
+      <div class="info"><div class="brand">${p.brand}</div><div class="name">${p.name}</div>
+      <div class="price-wrap"><div><div class="price">$${p.price.toLocaleString('es-AR')}</div>${p.priceOld?`<div class="price-old">$${p.priceOld.toLocaleString('es-AR')}</div>`:''}</div>
+      <button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ Agregar</button></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── MISC ──
+let featQtyVal=1;
+function featQty(d){featQtyVal=Math.max(1,featQtyVal+d);document.getElementById('featQtyVal').textContent=featQtyVal;}
+let panelOpen=true;
+function togglePanel(){panelOpen=!panelOpen;document.getElementById('demoPanel').style.display=panelOpen?'block':'none';}
+function showToast(msg){const t=document.getElementById('sc-toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);}
+function subscribeNewsletter(){const e=document.getElementById('nlEmail').value.trim();if(!e||!e.includes('@')){showToast('⚠️ Ingresá un email válido');return;}showToast('🎉 Suscripto! 🤖 SmartCart personalizará tus newsletters.');document.getElementById('nlEmail').value='';}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeSearch();closeCart();}});
+document.querySelectorAll('.variant-btn').forEach(btn=>{btn.addEventListener('click',()=>{btn.closest('.variants-row').querySelectorAll('.variant-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');});});
+
+// Init
+applyUserProfile();
+renderGrid('scStockGrid',['paleta-swift','pepitos','queso-serenisima','milka-oreo','yogur-actimel'],true);
+renderGrid('masElegidosGrid',['pan-bimbo','leche-sancor','quilmes','fideos-knorr','coca-cola']);
+renderCart();
+</script>
+</body>
+</html>
